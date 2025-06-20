@@ -22,9 +22,15 @@ class Task(models.Model):
     def __str__(self):
         return f'{self.title}'
 
+    class Meta:
+        db_table = 'task_manager_task'
+        ordering = ('-created_at',)
+        verbose_name = 'Task'
+        verbose_name_plural = 'Tasks'
+
 
 class SubTask(models.Model):
-    title = models.CharField(max_length=50, verbose_name='Title')
+    title = models.CharField(max_length=50, verbose_name='Title', unique=True)
     description = models.TextField(verbose_name='Description')
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name='Task', related_name='subtasks')
     status = models.CharField(choices=STATUS_CHOICES, default='N', max_length=15, verbose_name='Status')
@@ -34,11 +40,19 @@ class SubTask(models.Model):
     def __str__(self):
         return f'{self.title}'
 
+    class Meta:
+        db_table = 'task_manager_subtask'
+        ordering = ('-created_at',)
+        verbose_name = 'SubTask'
+        verbose_name_plural = 'SubTasks'
+
 class Category(models.Model):
-    name = models.CharField(max_length=50, verbose_name='Name')
+    name = models.CharField(max_length=50, verbose_name='Name', unique=True)
 
     def __str__(self):
         return f'{self.name}'
 
     class Meta:
+        db_table = 'task_manager_category'
+        verbose_name = 'Category'
         verbose_name_plural = 'Categories'
