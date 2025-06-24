@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('N', 'New'), ('IP', 'In Progress'), ('D', 'Done'), ('P', 'Pending'), ('B', 'Blocked')], default='N', max_length=15, verbose_name='Status')),
                 ('deadline', models.DateField(verbose_name='Deadline')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Created at')),
-                ('categories', models.ManyToManyField(to='HW_8.category', verbose_name='Categories')),
+                ('categories', models.ManyToManyField(to='task_manager.category', verbose_name='Categories')),
             ],
         ),
         migrations.CreateModel(
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('N', 'New'), ('IP', 'In Progress'), ('D', 'Done'), ('P', 'Pending'), ('B', 'Blocked')], default='N', max_length=15, verbose_name='Status')),
                 ('deadline', models.DateField(verbose_name='Deadline')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Created at')),
-                ('task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subtasks', to='HW_8.task', verbose_name='Task')),
+                ('task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subtasks', to='task_manager.task', verbose_name='Task')),
             ],
         ),
     ]

@@ -1,12 +1,11 @@
 from django.contrib import admin
-from HW_8.models import Category, Task, SubTask
-
-
+from task_manager.models import Category, Task, SubTask
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
+
 
 @admin.register(SubTask)
 class SubTaskAdmin(admin.ModelAdmin):
@@ -21,6 +20,7 @@ class SubTaskAdmin(admin.ModelAdmin):
 class SubTaskInLine(admin.StackedInline):
     model = SubTask
     extra = 1
+
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
