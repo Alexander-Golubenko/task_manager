@@ -33,4 +33,7 @@ class TaskAdmin(admin.ModelAdmin):
         if len(obj.title) > 10:
             return obj.title[:10] + "..."
         return obj.title
+
     short_title.short_description = 'Title (short)'
+
+
