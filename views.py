@@ -76,9 +76,6 @@ def task_statistics(request):
     })
 
 
-class SubTaskPagination(PageNumberPagination):
-    page_size = 5
-
 class SubTaskListCreateView(APIView):
     class SubTaskPagination(PageNumberPagination):
         page_size = 5
@@ -95,7 +92,7 @@ class SubTaskListCreateView(APIView):
             queryset = queryset.filter(status=status)
 
         paginator = self.SubTaskPagination()
-        paginated_qs = paginator.paginate_queryset(queryset, self.request, view=self)
+        paginated_qs = paginator.paginate_queryset(queryset, request, view=self)
         serializer = SubTaskSerializer(paginated_qs, many=True)
         return paginator.get_paginated_response(serializer.data)
 
