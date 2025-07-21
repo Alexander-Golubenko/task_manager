@@ -1,13 +1,14 @@
 from django.db.models.functions import ExtractWeekDay
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import  Response
-from rest_framework import status, filters
-from .models import  Task, SubTask
-from .serializers import TaskSerializer, SubTaskSerializer, SubTaskCreateSerializer, TaskCreateSerializer
+from rest_framework import filters, viewsets
+from .models import  Task, SubTask, Category
+from .serializers import *
 from django.utils.timezone import now
 from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
+from rest_framework.viewsets import ModelViewSet
 
 class TaskListCreateAPIView(ListCreateAPIView):
     """
@@ -108,3 +109,14 @@ class SubTaskListCreateAPIView(ListCreateAPIView):
 class SubTaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
+
+
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategoryCreateSerializer
+
+    @action(detail=True, methods=['get'])
+    def count_tasks(self, request, pk=None):
+        category = self.get_object()
+        task_count = category.task_set.count()
+        return Response({'category': category.name, 'task_count': task_count})
