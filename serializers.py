@@ -27,10 +27,10 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
-    def validate_name(self, value):
-        if Category.objects.filter(name=value).exists():
-            raise serializers.ValidationError('Category already exists')
-        return value
+    # def validate_name(self, value):
+    #     if Category.objects.filter(name=value).exists():
+    #         raise serializers.ValidationError('Category already exists')
+    #     return value
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)

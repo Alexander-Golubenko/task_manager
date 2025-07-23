@@ -1,7 +1,7 @@
 from django.db.models.functions import ExtractWeekDay
 from rest_framework.decorators import api_view, action
 from rest_framework.response import  Response
-from rest_framework import filters, viewsets
+from rest_framework import filters, viewsets, request
 from .models import  Task, SubTask, Category
 from .serializers import *
 from django.utils.timezone import now
@@ -92,7 +92,7 @@ class SubTaskListCreateAPIView(ListCreateAPIView):
     post:
     Create a new subtask.
     """
-    serializer_class = SubTaskSerializer
+    serializer_class = SubTaskCreateSerializer(data=request.data)
     filter_backends = (DjangoFilterBackend,filters.SearchFilter, filters.OrderingFilter)
     filterset_fields = ['status', 'deadline']
     search_fields = ['title', 'description']
