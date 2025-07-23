@@ -2,6 +2,8 @@ from django.utils.timezone import  now
 
 from rest_framework import serializers
 from .models import  Task, SubTask, Category
+from .validators import validate_deadline
+
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +18,8 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
+    deadline = serializers.DateField(validators=[validate_deadline])
+
     class Meta:
         model = SubTask
         fields = '__all__'
@@ -27,11 +31,6 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
-    # def validate_name(self, value):
-    #     if Category.objects.filter(name=value).exists():
-    #         raise serializers.ValidationError('Category already exists')
-    #     return value
-
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
 
@@ -42,10 +41,12 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Category already exists')
         return super().update(obj, validated_data)
 
+
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
         fields = '__all__'
+
 
 class TaskDetailSerializer(serializers.ModelSerializer):
     subtasks = SubTaskSerializer(many=True, read_only=True)
@@ -54,7 +55,10 @@ class TaskDetailSerializer(serializers.ModelSerializer):
         model = Task
         fields = '__all__'
 
+
 class TaskCreateSerializer(serializers.ModelSerializer):
+    deadline = serializers.DateField(validators=[validate_deadline])
+
     class Meta:
         model = Task
         fields = '__all__'

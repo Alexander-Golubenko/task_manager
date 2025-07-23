@@ -92,7 +92,7 @@ class SubTaskListCreateAPIView(ListCreateAPIView):
     post:
     Create a new subtask.
     """
-    serializer_class = SubTaskCreateSerializer(data=request.data)
+    serializer_class = SubTaskCreateSerializer
     filter_backends = (DjangoFilterBackend,filters.SearchFilter, filters.OrderingFilter)
     filterset_fields = ['status', 'deadline']
     search_fields = ['title', 'description']

@@ -13,6 +13,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
+from task_manager.paginations import (
+    StandardCursorPagination,
+    StandardPageNumberPagination,
+    StandardLimitOffsetPagination,
+)
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,7 +155,63 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5,
+    'DEFAULT_PAGINATION_CLASS': StandardCursorPagination,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
+
+
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(name)s %(message)s',
+            'style': '%',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+            'style': '%',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'http_file': {
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'http_logs.log',
+            'formatter': 'verbose',
+            'level': 'INFO',
+            'encoding': 'utf-8',
+        },
+        'db_file': {
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'db_logs.log',
+            'formatter': 'verbose',
+            'level': 'DEBUG',
+            'encoding': 'utf-8',
+        },
+
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'django.request': {
+            'handlers': ['http_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['db_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
 }
