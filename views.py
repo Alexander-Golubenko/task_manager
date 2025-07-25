@@ -1,5 +1,5 @@
 from django.db.models.functions import ExtractWeekDay
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import  Response
 from rest_framework import filters, viewsets, request
 from .models import  Task, SubTask, Category
@@ -9,6 +9,9 @@ from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPI
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
+from .permissions import ReadOnlyOrAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 
 class TaskListCreateAPIView(ListCreateAPIView):
     """
@@ -24,6 +27,7 @@ class TaskListCreateAPIView(ListCreateAPIView):
     Create a new task.
     """
     serializer_class = TaskSerializer
+    permission_classes = (ReadOnlyOrAuthenticated,)
 
     filter_backends = (DjangoFilterBackend,filters.SearchFilter, filters.OrderingFilter)
     filterset_fields = ['status', 'deadline']
@@ -58,8 +62,10 @@ class TaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
 
+    permission_classes = (ReadOnlyOrAuthenticated,)
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def task_statistics(request):
     total_tasks = Task.objects.all().count()
 
@@ -93,6 +99,8 @@ class SubTaskListCreateAPIView(ListCreateAPIView):
     Create a new subtask.
     """
     serializer_class = SubTaskCreateSerializer
+    permission_classes = (ReadOnlyOrAuthenticated,)
+
     filter_backends = (DjangoFilterBackend,filters.SearchFilter, filters.OrderingFilter)
     filterset_fields = ['status', 'deadline']
     search_fields = ['title', 'description']
@@ -109,6 +117,7 @@ class SubTaskListCreateAPIView(ListCreateAPIView):
 class SubTaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
+    permission_classes = (ReadOnlyOrAuthenticated,)
 
 
 class CategoryViewSet(ModelViewSet):

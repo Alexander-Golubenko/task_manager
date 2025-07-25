@@ -13,6 +13,6 @@ class StandardLimitOffsetPagination(LimitOffsetPagination):
 
 
 class StandardCursorPagination(CursorPagination):
-    page_size = 6
+    page_size = 5
     ordering = ('id',)
     cursor_query_param = 'cursor'
