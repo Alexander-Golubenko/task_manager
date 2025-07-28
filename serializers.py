@@ -1,8 +1,9 @@
 from django.utils.timezone import  now
-
 from rest_framework import serializers
 from .models import  Task, SubTask, Category
 from .validators import validate_deadline
+from django.contrib.auth.models import  User
+from django.contrib.auth.password_validation import validate_password
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -71,3 +72,27 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         if value < now().date():
             raise serializers.ValidationError('Deadline cannot be before today')
         return value
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'password2']
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        user = User(
+            username=validated_data['username'],
+            email=validated_data['email']
+        )
+        user.set_password(validated_data['password'])  # хэширование
+        user.save()
+        return user

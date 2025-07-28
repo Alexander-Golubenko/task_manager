@@ -1,18 +1,21 @@
 from django.db.models.functions import ExtractWeekDay
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import  Response
-from rest_framework import filters, viewsets, request
-from rest_framework.views import APIView
+from rest_framework import filters, status, permissions
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import  Task, SubTask, Category
 from .serializers import *
 from django.utils.timezone import now
-from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
 from .permissions import ReadOnlyOrAuthenticated, IsOwnerOrAdminOrReadOnly
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 class TaskListCreateAPIView(ListCreateAPIView):
@@ -157,3 +160,24 @@ class MySubTasksAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         return SubTask.objects.filter(owner=self.request.user)
+
+class RegisterAPIView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = (AllowAny,)
+
+
+class LogoutAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.data['refresh']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"detail": "Logout successful."}, status=status.HTTP_205_RESET_CONTENT)
+        except KeyError:
+            return Response({"detail": "Logout failed."}, status=status.HTTP_400_BAD_REQUEST)
+        except TokenError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

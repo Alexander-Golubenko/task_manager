@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
+from django.conf.global_settings import AUTH_USER_MODEL
+
 from task_manager.paginations import (
     StandardCursorPagination,
     StandardPageNumberPagination,
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'drf_yasg',
+    'rest_framework_simplejwt.token_blacklist',
     'task_manager',
 ]
 
@@ -168,6 +171,8 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': True,
 }
 
 LOG_DIR = BASE_DIR / 'logs'
