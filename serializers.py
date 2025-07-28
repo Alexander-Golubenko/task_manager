@@ -13,17 +13,19 @@ class TaskSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'status',
-            'deadline'
+            'deadline',
+            'owner',
         ]
 
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     deadline = serializers.DateField(validators=[validate_deadline])
 
     class Meta:
         model = SubTask
         fields = '__all__'
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'owner']
 
 
 class CategoryCreateSerializer(serializers.ModelSerializer):
@@ -57,11 +59,13 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     deadline = serializers.DateField(validators=[validate_deadline])
 
     class Meta:
         model = Task
         fields = '__all__'
+        read_only_fields = ['created_at', 'owner']
 
     def validate_deadline(self, value):
         if value < now().date():

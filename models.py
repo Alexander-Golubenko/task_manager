@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 
 
 STATUS_CHOICES = [
@@ -10,7 +11,7 @@ STATUS_CHOICES = [
     ('B', 'Blocked')
 ]
 
-
+User = get_user_model()
 
 class Task(models.Model):
     title = models.CharField(max_length=50, verbose_name='Title', unique_for_date='deadline')
@@ -19,6 +20,7 @@ class Task(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, default='N', max_length=15, verbose_name='Status')
     deadline = models.DateField(verbose_name='Deadline')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created at')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Owner', related_name='tasks')
 
     def __str__(self):
         return f'{self.title}'
@@ -37,6 +39,7 @@ class SubTask(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, default='N', max_length=15, verbose_name='Status')
     deadline = models.DateField(verbose_name='Deadline')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created at')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Owner', related_name='subtasks')
 
     def __str__(self):
         return f'{self.title}'

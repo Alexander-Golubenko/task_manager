@@ -7,7 +7,9 @@ from task_manager.views import (
     TaskListCreateAPIView,
     SubTaskListCreateAPIView,
     SubTaskRetrieveUpdateDestroyAPIView,
-    CategoryViewSet
+    CategoryViewSet,
+    MyTasksAPIView,
+    MySubTasksAPIView,
 )
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 
@@ -24,4 +26,6 @@ urlpatterns = router.urls + [
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyAPIView.as_view(), name='subtask-detail'),
     path('api/token/', TokenObtainPairView.as_view(), name='api-token-auth'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='api-token-refresh'),
+    path('tasks/my/', MyTasksAPIView.as_view(), name='my-tasks'),
+    path('subtasks/my/', MySubTasksAPIView.as_view(), name='my-sub-tasks'),
 ]

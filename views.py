@@ -2,6 +2,8 @@ from django.db.models.functions import ExtractWeekDay
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import  Response
 from rest_framework import filters, viewsets, request
+from rest_framework.views import APIView
+
 from .models import  Task, SubTask, Category
 from .serializers import *
 from django.utils.timezone import now
@@ -9,7 +11,7 @@ from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPI
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
-from .permissions import ReadOnlyOrAuthenticated
+from .permissions import ReadOnlyOrAuthenticated, IsOwnerOrAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
@@ -26,7 +28,6 @@ class TaskListCreateAPIView(ListCreateAPIView):
     post:
     Create a new task.
     """
-    serializer_class = TaskSerializer
     permission_classes = (ReadOnlyOrAuthenticated,)
 
     filter_backends = (DjangoFilterBackend,filters.SearchFilter, filters.OrderingFilter)
@@ -57,12 +58,19 @@ class TaskListCreateAPIView(ListCreateAPIView):
 
         return queryset
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return TaskCreateSerializer
+        return TaskSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class TaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
 
-    permission_classes = (ReadOnlyOrAuthenticated,)
+    permission_classes = (IsOwnerOrAdminOrReadOnly,)
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
@@ -114,10 +122,14 @@ class SubTaskListCreateAPIView(ListCreateAPIView):
             queryset = queryset.filter(task__title__icontains=task_title)
         return queryset
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
 class SubTaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
-    permission_classes = (ReadOnlyOrAuthenticated,)
+    permission_classes = (IsOwnerOrAdminOrReadOnly,)
 
 
 class CategoryViewSet(ModelViewSet):
@@ -129,3 +141,19 @@ class CategoryViewSet(ModelViewSet):
         category = self.get_object()
         task_count = category.task_set.count()
         return Response({'category': category.name, 'task_count': task_count})
+
+
+class MyTasksAPIView(ListCreateAPIView):
+    serializer_class = TaskCreateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
+
+
+class MySubTasksAPIView(ListCreateAPIView):
+    serializer_class = SubTaskCreateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return SubTask.objects.filter(owner=self.request.user)
