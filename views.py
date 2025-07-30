@@ -3,7 +3,6 @@ from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import  Response
 from rest_framework import filters, status, permissions
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from .serializers import *
 from django.utils.timezone import now
 from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
